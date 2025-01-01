@@ -1,262 +1,167 @@
-# Simulation_Epidemie
-Projet_simulation_Epidemie
 
-
+# **Simulation Épidémie**
 
 Les citoyens se déplacent dans une ville représentée par une grille de 7x7 cases. Ils peuvent être des médecins, des pompiers, des journalistes ou des citoyens ordinaires.
 
-- **Rôles :**
-    - Les **pompiers** décontaminent les lieux et les citoyens.
-    - Les **médecins** soignent les maladies dues à la contamination.
-    - Les **journalistes** rapportent des informations sur la contamination et les décès à une agence de presse hors de la ville.
-- **Types de cases et capacité :**
-    - Maison : 6 citoyens.
-    - Caserne : 8 citoyens.
-    - Hôpital : 12 citoyens.
-    - Terrain vague : 16 citoyens.
-- **Contamination :**
-    - Les terrains vagues sont les seuls initialement contaminés, avec 10% d’entre eux ayant un niveau de contamination entre 20% et 40%.
+---
 
-Chaque case a un niveau de contamination compris entre 0% et 100%.
+## **Rôles des citoyens :**
 
-Chaque lieu (case) a un niveau de contamination qui peut aller de 0% (pas de contamination) à 100% (contamination totale).
-
-    Au départ (début de la simulation) :
-        Seuls les terrains vagues peuvent être contaminés.
-        Parmi tous les terrains vagues, seulement 10% d'entre eux ont un niveau de contamination supérieur à zéro.
-        Ces terrains contaminés ont des niveaux de contamination compris entre 20% et 40%.
-    En résumé, la majorité des terrains vagues ne sont pas contaminés au début, et parmi les contaminés, le niveau reste modéré (pas au maximum).
-    
-Voici un résumé structuré et détaillé, prêt à être traduit en code :
+1. **Pompiers :**
+    - Décontaminent les lieux et les citoyens.
+    - Brûlent les corps pour réduire les risques de contamination.
+2. **Médecins :**
+    - Soignent les maladies dues à la contamination.
+    - Peuvent s’auto-soigner s’ils possèdent des pochettes de soins.
+3. **Journalistes :**
+    - Rapportent des informations sur la contamination et les décès à une agence de presse.
+4. **Citoyens ordinaires :**
+    - Se déplacent, peuvent être contaminés ou tomber malades.
 
 ---
 
-### **Déplacement des citoyens**
-- Les citoyens peuvent se déplacer **aléatoirement** sur une grille.
-  - **60% des cas :** Le citoyen reste sur la même case.
-  - **40% des cas :** Le citoyen se déplace vers une case voisine (choisie aléatoirement parmi les 8 cases autour).
-- Le **niveau de contamination d’un citoyen** est compris entre **0 (0%)** et **1 (100%)**.
+## **Types de lieux et capacités :**
+
+- **Maison :** Capacité maximale de 6 citoyens.
+- **Caserne :** Capacité maximale de 8 citoyens.
+- **Hôpital :** Capacité maximale de 12 citoyens.
+- **Terrain vague :** Capacité maximale de 16 citoyens.
 
 ---
 
-### **Effets du déplacement sur la contamination**
-1. **Si le citoyen reste sur la même case :**
-   - Son niveau de contamination augmente de **5% du niveau actuel du lieu**.
+## **Contamination initiale :**
 
-2. **Si le citoyen se déplace vers une nouvelle case :**
-   - Son niveau de contamination augmente de **2% du niveau de contamination du lieu cible**.
-   - La case cible voit son niveau de contamination augmenter de **1% du niveau de contamination du citoyen**.
-   - ### **Exemple pratique** : 
-        1. Supposons qu’un citoyen a un niveau de contamination de **50%**.
-        2. Il entre sur une case qui a actuellement un niveau de contamination de **10%**.
-        3. La contamination de la case va augmenter de :
-           \[
-           1\% \times 50\% = 0,5\%
-           \]
-           - Nouveau niveau de contamination de la case = **10,5%**.
-
-
-3. **Cas particuliers pour les lieux :**
-   - **Caserne :** Niveau de contamination toujours nul.
-   - **Hôpital :** L'augmentation de la contamination est divisée par **4** grâce aux conditions d’hygiène.
+1. Seuls les **terrains vagues** peuvent être contaminés au départ.
+2. Parmi eux, **10% ont un niveau de contamination compris entre 20% et 40%.**
+3. Les autres lieux (maisons, casernes, hôpitaux) sont initialement propres.
 
 ---
 
-### **État de santé du citoyen**
-1. **Probabilité de maladie :**
-   - Un citoyen contaminé peut tomber malade.
-   - La probabilité de tomber malade à chaque tour est **égale à son niveau de contamination**.
+## **Déplacement des citoyens :**
 
-2. **Décès à partir du 5ᵉ jour de maladie :**
-   - Probabilité de décès : **5% par jour au-delà du 5ᵉ jour**.
-   - Ce risque est divisé par **2** si un médecin est présent sur la même case.
-
----
-
-### **Propagation entre citoyens**
-1. **Malade ou cadavre dans un lieu :**
-   - **10% de chance** de contaminer les autres citoyens présents.
-   - **1% de chance** de contaminer les citoyens des terrains vagues voisins.
-
-2. **Effet de la contamination sur les citoyens infectés :**
-   - Leur niveau de contamination augmente de **0.01**.
+1. Les citoyens se déplacent aléatoirement :
+    - **60% des cas :** Le citoyen reste sur la même case.
+    - **40% des cas :** Le citoyen se déplace vers une case voisine.
+2. **Effets du déplacement :**
+    - **Si le citoyen reste sur la même case :**
+        - Son niveau de contamination augmente de **5% du niveau de contamination de la case**.
+    - **Si le citoyen se déplace vers une autre case :**
+        - Son niveau de contamination augmente de **2% du niveau de contamination de la nouvelle case**.
+        - La case voit son niveau de contamination augmenter de **1% du niveau de contamination du citoyen entrant**.
+3. **Cas particuliers :**
+    - **Caserne :** Niveau de contamination toujours nul.
+    - **Hôpital :** L'augmentation de contamination est divisée par **4** grâce aux conditions d’hygiène.
 
 ---
 
-### **Rôles des pompiers**
-1. **Décontamination :**
-   - Les pompiers peuvent décontaminer les **citoyens** et les **lieux**.
-   - **Règles :**
-     - Chaque citoyen présent voit son niveau de contamination diminuer de **20%** par tour.
-     - Une fois les citoyens décontaminés, le pompier diminue le niveau de contamination du lieu de **20%** par tour.
-     - Priorité : **Citoyens d’abord**, lieu ensuite.
-     - Le pompier utilise **1/10 de la capacité de son pulvérisateur par tour**.
-     - ### **Règle du pulvérisateur**
-        - Chaque pompier dispose d’un **pulvérisateur** avec une **capacité maximale** (par exemple, 1000 unités).
-        - À chaque tour, un pompier peut utiliser **jusqu’à 1/10 de cette capacité totale**, soit **10% de la capacité totale**.
-        - Chaque unité utilisée sert à décontaminer soit :
-          - Les citoyens présents sur la case.
-          - Le lieu (après avoir décontaminé les citoyens).
-     - ### **Formule pour la consommation**
-        1. Capacité totale initiale : \( \text{Capacité\_totale} \).
-        2. Limite par tour : \( \text{Limite\_tour} = \text{Capacité\_totale} \times 0.1 \).
-        
-        - À chaque tour :
-        - Si   Consommation_citoyens+Consommation_lieu≤Limite_tourConsommation_citoyens+Consommation_lieu≤Limite_tour, tout est traité.
-        - Sinon, la décontamination est partielle (priorité aux citoyens).
+## **Exemple pratique :**
 
-2. **Brûler les corps :**
-   - Dès qu’un pompier entre sur une case, tous les cadavres présents sont brûlés en **1 tour**.
-
-3. **Protection contre la contamination :**
-   - La tenue de protection du pompier limite l’augmentation de sa contamination :
-     - Le pompier est contaminé **10 fois moins vite** par le niveau de contamination du lieu.
-   - Le pompier est protégé contre la contamination d’autres citoyens :
-     - **70% des cas** : Le virus d’un citoyen contaminé ne traverse pas la tenue.
+1. Un citoyen avec un niveau de contamination de **50%** entre sur une case avec une contamination de **10%**.
+    - La contamination de la case augmente de :
+        - $1\% \times 50 = 0,5\%$.
+        - Nouveau niveau de contamination de la case : **10,5%**.
+    - La contamination du citoyen augmente de :
+        - $2\% \times 10 = 0,2\%$.
+        - Nouveau niveau de contamination du citoyen : **50,2%**.
 
 ---
 
-### **Étapes clés à traduire en code**
-#### 1. Décontamination des citoyens
-- Parcourir la liste des citoyens présents sur la case.
-- Réduire leur niveau de contamination de **20%** :
-  \[
-  C_{\text{citoyen\_nouveau}} = C_{\text{citoyen}} \times 0.8
-  \]
-- Réduire la capacité du pulvérisateur de **10%** par tour.
+## **Santé et maladie des citoyens :**
 
-#### 2. Décontamination du lieu
-- Une fois les citoyens décontaminés, réduire la contamination du lieu de **20%** :
-  \[
-  C_{\text{lieu\_nouveau}} = C_{\text{lieu}} \times 0.8
-  \]
-
-#### 3. Brûler les corps
-- Réinitialiser le compteur de cadavres à **0** pour la case.
-
-#### 4. Gestion de la contamination du pompier
-- **Contamination par le lieu :**
-  - L’augmentation est réduite par un facteur de 10 :
-    \[
-    C_{\text{pompier\_nouveau}} += C_{\text{lieu}} \times 0.002
-    \]
-- **Contamination par les citoyens :**
-  - Tirer un nombre aléatoire entre 0 et 1.
-  - Si ce nombre est supérieur à **0.3** (donc 70% de protection), le pompier n’est pas contaminé.
+1. **Probabilité de tomber malade :**
+    - Égale au niveau de contamination d’un citoyen (exemple : 70% de contamination = 70% de probabilité).
+2. **Décès après 5 jours de maladie :**
+    - À partir du 5ᵉ jour, probabilité de décès : **5% par jour.**
+    - Ce risque est réduit de moitié si un médecin est présent sur la même case.
 
 ---
 
+## **Propagation de la contamination entre citoyens :**
+
+1. **Si un malade ou un cadavre est présent sur une case :**
+    - **10% de chance** de contaminer les citoyens présents.
+    - **1% de chance** de contaminer les citoyens des terrains vagues voisins.
+2. **Effet sur les citoyens infectés :**
+    - Leur niveau de contamination augmente de **1%** par contamination.
 
 ---
 
-### **Rôles et comportements des médecins**
-1. **Gestion des pochettes de soins :**
-   - En début de partie :
-     - **5 pochettes de soins** si le médecin est hors de l’hôpital.
-     - **10 pochettes de soins** si le médecin est dans un hôpital.
-   - En entrant dans un hôpital, un médecin reçoit **10 pochettes supplémentaires**.
+## **Règles spécifiques des lieux :**
 
-2. **Soins des malades :**
-   - Un médecin peut **soigner un seul malade par jour.**
-   - Il soigne toujours **le citoyen le plus malade** (avec le niveau de contamination le plus élevé) sur sa case.
-   - S’il se trouve dans un hôpital, il n’a pas besoin d’utiliser de pochette pour soigner.
+### **1. Terrains vagues :**
 
-3. **Auto-soin :**
-   - Si le médecin est malade, il ne peut soigner personne.
-   - Si le médecin est malade depuis **moins de 10 jours**, il peut s’auto-soigner en utilisant une pochette de soins.
-   - Au-delà de **10 jours**, il est trop faible pour s’auto-soigner.
-
-4. **Retour à l’hôpital :**
-   - Un médecin qui quitte un hôpital ne peut y retourner avant **au moins 2 jours.**
+- Les terrains vagues peuvent contaminer leurs voisins sous certaines conditions :
+    - La contamination se propage uniquement si le niveau de contamination du terrain vague est **supérieur** à celui du voisin.
+    - La probabilité de propagation dépend de la direction :
+        - **Est, Sud-Est :** 25%.
+        - **Nord-Est :** 20%.
+        - **Nord, Sud :** 15%.
+        - **Ouest, Nord-Ouest, Sud-Ouest :** 3%.
 
 
-### **Exemple concret** :
-#### Situation :
-- 3 citoyens sur une case :
-  - Citoyen 1 : Contamination = 80%, malade.
-  - Citoyen 2 : Contamination = 60%, malade.
-  - Citoyen 3 : Contamination = 50%, en bonne santé.
-- Le médecin :
-  - Hors de l’hôpital.
-  - Dispose de 5 pochettes de soins.
+#### **Exemple :**
 
-#### **Étapes du tour :**
-1. Le médecin cherche le citoyen le plus malade :
-   - Citoyen 1 (80%) est prioritaire.
-
-2. Le médecin utilise une pochette pour soigner Citoyen 1 :
-   - Citoyen 1 est guéri (contamination = 0).
-   - Nombre de pochettes restantes : 4.
-
-3. Si le médecin est malade depuis moins de 10 jours, il peut s’auto-soigner en consommant une pochette.
-
-Settings
-
-journaliste.note
-pompiers .note
-medecin.note
-pulvérisateur.note
-Untitled document 9.note
-Untitled document 7.note
-Untitled document 8.note
-Untitled document 6.note
-Untitled document 5.note
-Untitled document 4.note
-Untitled document 3.note
-lettre de motivation_version canva.note
-lettre de motivation.note
-remarque cv .note
-Projets_lunix_embarqués.note
-Hobbies.note
-Cv _version 2.note
-cv_complet.note
-langue et hobbies etc.note
-Profil&interet.note
-
-        Formations_final.note
-
-Notes
-Saved just now
-
-Selection deleted
----
-### **Rôles et responsabilités des journalistes**
-1. **Transmission de dépêches à chaque tour :**
-   - Les dépêches incluent des informations sur :
-     - **Nombre de citoyens en bonne santé** (priorité : 6).
-     - **Nombre de malades** (priorité : 7).
-     - **Nombre de cadavres** (priorité : 8).
-     - **Nombre de corps brûlés** (priorité : 9).
-     - **Niveau moyen de contamination de la ville** (priorité : 5).
-     - **Taux de contamination personnel** du journaliste (priorité : 1).
-
-2. **Récupération des données :**
-   - Les journalistes accèdent à ces informations via une **structure de mémoire partagée**.
-
-3. **Priorité des informations :**
-   - Les dépêches sont transmises selon un ordre de priorité.
-   - Une file de messages unique est utilisée pour envoyer ces données.
+- Terrain vague A (70%) et terrain vague B (50%) sont voisins.
+    - Probabilité de propagation d'A vers B (Est) : 25%.
+    - Si la propagation a lieu :
+        - Différence de contamination : $70 - 50 = 20\%$.
+        - Augmentation de B : Par exemple, $10\% \times 20 = 2\%$.
+        - Nouveau niveau de B : **52%**.
 
 ---
 
-standard
-Rôles et responsabilités des journalistes
+### **2. Casernes :**
 
-    Transmission de dépêches à chaque tour :
-        Les dépêches incluent des informations sur :
-            Nombre de citoyens en bonne santé (priorité : 6).
-            Nombre de malades (priorité : 7).
-            Nombre de cadavres (priorité : 8).
-            Nombre de corps brûlés (priorité : 9).
-            Niveau moyen de contamination de la ville (priorité : 5).
-            Taux de contamination personnel du journaliste (priorité : 1).
-    Récupération des données :
-        Les journalistes accèdent à ces informations via une structure de mémoire partagée.
-    Priorité des informations :
-        Les dépêches sont transmises selon un ordre de priorité.
-        Une file de messages unique est utilisée pour envoyer ces données.
+1. **Accès :**
+    - Seuls les pompiers peuvent entrer librement.
+    - Les citoyens ordinaires ne peuvent entrer que si un pompier est présent.
+2. **Décontamination :**
+    - Réduction de contamination de **20% par tour** pour les citoyens présents.
+    - En **5 tours maximum**, un citoyen est complètement décontaminé.
+
+#### **Exemple :**
+
+- Un citoyen avec une contamination de **50%** entre dans une caserne.
+    - Au 1ᵉʳ tour : $50 \times 0.8 = 40\%$.
+    - Au 2ᵉ tour : $40 \times 0.8 = 32\%$.
+
+3. **Équipement :**
+    - Les pompiers reçoivent un pulvérisateur à 1000% de capacité.
+    - Les citoyens reçoivent un appareil pour mesurer la contamination.
+
+---
+
+### **3. Hôpitaux :**
+
+1. **Accès :**
+    - Seuls les malades, les médecins et les pompiers peuvent entrer.
+2. **Effets sur les malades :**
+    - Réduction du risque de mortalité (divisé par 4).
+    - Réduction de contamination de **10% par tour**, mais pas en dessous du niveau de contamination de l’hôpital.
+3. **Capacité :**
+    - Limite de 12 citoyens.
+    - Une fois guéris, les citoyens doivent quitter l’hôpital après **2 tours.**
+
+---
+
+## **Simulation simplifiée :**
+
+### **Situation :**
+
+- **Case A :** Terrain vague contaminé à 30%.
+- **Case B :** Terrain vague contaminé à 10%.
+- **Citoyen 1 :** Contamination 20%.
 
 
+### **Tour 1 :**
 
+1. Citoyen 1 se déplace de la case A à la case B.
+    - Contamination de la case B augmente de $1\% \times 20 = 0,2\%$.
+    - Nouvelle contamination de B : $10 + 0,2 = 10,2\%$.
+    - Contamination du citoyen augmente de $2\% \times 10,2 = 0,204\%$.
+    - Nouvelle contamination du citoyen : $20 + 0,204 = 20,204\%$.
 
-    
+---
+
+Ces corrections assurent une mise en page claire et des calculs précis. Si vous avez besoin de plus de détails ou d’un autre exemple, n’hésitez pas ! 😊
+
