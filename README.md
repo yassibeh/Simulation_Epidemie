@@ -162,6 +162,179 @@ Les citoyens se déplacent dans une ville représentée par une grille de 7x7 ca
     - Nouvelle contamination du citoyen : $20 + 0,204 = 20,204\%$.
 
 ---
+### **Détails de l'implémentation - Initialisation et Simulation**
 
-Ces corrections assurent une mise en page claire et des calculs précis. Si vous avez besoin de plus de détails ou d’un autre exemple, n’hésitez pas ! 😊
+Cette partie décrit les éléments essentiels de la simulation, notamment la configuration initiale de la ville et l'organisation du simulateur en programmes distincts. Voici une explication détaillée de chaque aspect :
+
+---
+
+### **3.1 Initialisation**
+
+#### **Configuration de la ville**
+
+1. **Dimensions :**
+    - La ville est une grille de **7x7 cases**, soit un total de 49 cases.
+2. **Répartition des types de cases :**
+    - **Hôpital :**
+        - Placé au **centre de la grille**, c’est-à-dire en position (3,3) si les indices commencent à 0.
+        - Il sert à soigner les citoyens malades.
+    - **Caserne :**
+        - Deux casernes sont placées :
+            - Une au **nord-est**, par exemple en position (0,6).
+            - Une au **sud-ouest**, par exemple en position (6,0).
+            - Elles servent à décontaminer les citoyens et à brûler les cadavres.
+    - **Maisons :**
+        - Il y a **12 maisons** réparties aléatoirement sur les cases restantes.
+        - Les maisons peuvent accueillir jusqu’à 6 citoyens chacune.
+    - **Terrains vagues :**
+        - Les **34 cases restantes** sont des terrains vagues.
+        - Ces terrains peuvent être contaminés et transmettre la contamination.
+
+---
+
+#### **Répartition des citoyens**
+
+1. **Population totale :**
+    - La simulation commence avec **37 citoyens** :
+        - **4 médecins** : Soignent les malades et réduisent leur risque de décès.
+        - **6 pompiers** : Décontaminent les lieux et brûlent les corps.
+        - **25 citoyens ordinaires**.
+2. **Placement initial :**
+    - Tous les citoyens doivent être positionnés sur les cases de la ville.
+    - **Contraintes spécifiques :**
+        - Au moins **1 médecin** doit être placé sur l’hôpital dès le début.
+        - Chaque caserne doit avoir **au moins 1 pompier**.
+        - Les autres citoyens sont répartis aléatoirement sur les cases restantes.
+
+---
+
+#### **Journalistes**
+
+- Il y a **2 journalistes**.
+- Ils utilisent un **canal de communication unique** (file de messages) pour transmettre des dépêches à une agence de presse.
+
+---
+
+#### **Durée de la simulation**
+
+- La simulation dure **100 tours**, où chaque tour correspond à un jour.
+- Un **générateur aléatoire** est utilisé pour :
+    - Placer les maisons et les citoyens au début.
+    - Déterminer les mouvements aléatoires des citoyens pendant la simulation.
+
+---
+
+#### **Illustration - Exemple de répartition**
+
+Voici un exemple de la disposition de la ville (Figure 1 mentionnée dans le texte) :
+
+```
+T  T  T  T  T  T  C
+T  M  T  T  T  M  T
+T  T  M  T  M  T  T
+T  T  T  H  T  T  T
+T  T  M  T  M  T  T
+M  T  T  T  T  T  T
+C  T  T  T  T  T  T
+```
+
+**Légende :**
+
+- **T :** Terrain vague.
+- **H :** Hôpital.
+- **C :** Caserne.
+- **M :** Maison.
+
+---
+
+### **3.2 Implémentation du simulateur**
+
+#### **Structure globale du simulateur**
+
+Le simulateur est composé de **quatre programmes distincts**, chacun ayant une responsabilité spécifique et communiquant entre eux via des ressources partagées.
+
+---
+
+#### **1. Programme "epidemic_sim"**
+
+- **Responsabilités :**
+    - Gérer la ville et l’état des citoyens.
+    - Créer et gérer une **mémoire partagée** contenant des structures de données pour :
+        - La disposition de la ville (cases, types de lieux, etc.).
+        - L’état des citoyens (sains, malades, décédés, etc.).
+    - Recevoir des signaux du programme "timer" pour indiquer la fin d’un tour.
+    - Mettre à jour le fichier `evolution.txt` à chaque tour, qui contient :
+        - Nombre de citoyens sains.
+        - Nombre de malades.
+        - Nombre de décès.
+        - Nombre de cadavres brûlés.
+    - Après 100 tours, envoyer un signal de fin à tous les autres programmes.
+- **Interaction avec les autres programmes :**
+    - Utilise des **tubes nommés** ou des **signaux** pour échanger des informations avec "citizen_manager" et "press_agency".
+    - Génère le fichier `evolution.txt`, utilisé pour afficher les résultats avec Gnuplot.
+
+---
+
+#### **2. Programme "citizen_manager"**
+
+- **Responsabilités :**
+    - Gérer tous les **threads citoyens** (médecins, pompiers, citoyens ordinaires, journalistes).
+    - Accéder à la mémoire partagée pour :
+        - Obtenir les niveaux de contamination des cases.
+        - Mettre à jour l’état des citoyens à chaque tour.
+    - Simuler les actions des citoyens :
+        - Déplacements.
+        - Contaminations.
+        - Soins et décontaminations.
+
+---
+
+#### **3. Programme "press_agency"**
+
+- **Responsabilités :**
+    - Jouer le rôle de l’agence de presse.
+    - Recevoir les **dépêches des journalistes** via une **file de messages**.
+    - Afficher les informations reçues en continu, avec certaines règles :
+        - Dépêches sur la santé des journalistes affichées uniquement si leur contamination > **80%**.
+        - Nombre de cadavres et corps brûlés réduit de **35%** avant affichage.
+        - Nombre de citoyens contaminés et malades réduit de **10%** avant affichage.
+
+---
+
+#### **4. Programme "timer"**
+
+- **Responsabilités :**
+    - Définir la durée d’un tour (entre **1 et 5 secondes**).
+    - Envoyer un signal au programme "epidemic_sim" pour indiquer la fin d’un tour.
+
+---
+
+### **Résumé des interactions**
+
+1. **"epidemic_sim" :** Gère la simulation globale et stocke les données dans `evolution.txt`.
+2. **"citizen_manager" :** Coordonne les citoyens et met à jour leur état.
+3. **"press_agency" :** Traite les dépêches des journalistes et affiche les informations.
+4. **"timer" :** Cadence la simulation en indiquant la fin des tours.
+
+---
+
+### **Exemple de fonctionnement :**
+
+#### **Initialisation :**
+
+1. **Hôpital** placé au centre, casernes au nord-est et sud-ouest.
+2. **4 médecins** (dont 1 sur l’hôpital), **6 pompiers** (répartis entre les casernes), **25 citoyens ordinaires**.
+3. Journalistes prêts à transmettre des dépêches.
+
+#### **Premier tour :**
+
+1. "timer" déclenche la fin du tour après 3 secondes.
+2. "citizen_manager" :
+    - Déplace les citoyens.
+    - Met à jour les états (contamination, santé).
+3. "epidemic_sim" met à jour `evolution.txt`.
+4. "press_agency" affiche les dépêches.
+
+---
+
 
